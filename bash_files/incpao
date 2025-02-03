@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 ~/shell_files/python_files/incpao.py "$@"
+python3 ~/shell_files/python_files/incpao.py ${1:-p}

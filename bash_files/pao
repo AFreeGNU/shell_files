@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 ~/shell_files/python_files/pao.py ${1:-A} ${2:-X} ${3:-c}
+python3 ~/shell_files/python_files/pao.py ${1:-p} ${2:-A} ${3:-Z} ${4:-c}

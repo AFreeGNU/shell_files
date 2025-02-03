@@ -1,13 +1,10 @@
-import numpy as np
 from datetime import datetime as dt
 import random as rd
 import math
 import sys
+import csv
 
-input_file = "/home/hiesl/shell_files/input_files/pao.csv"
-save_file = "/home/hiesl/shell_files/input_files/incorrect_pao.txt"
-
-BLD = ['A', 'B', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X']
+BLD = ['A', 'B', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Z']
 
 WHITE = 37
 RED = 31
@@ -32,7 +29,7 @@ def get_columns(letter1, letter2):
     rd.shuffle(columns)
     return columns
 
-def ask_pao(all_pairs):
+def ask_pao(all_pairs, save_file):
     if not prompt_start():
         return print("Attempt aborted!")
     start_global = dt.now()
@@ -40,7 +37,7 @@ def ask_pao(all_pairs):
     stop_global = dt.now()
     total_time = stop_global - start_global
     print_stats(total_pairs, dnf_count, times, total_time)
-    save_list_to_txt(incorrect)
+    save_list_to_txt(incorrect, save_file)
 
 def prompt_start():
     print("Push ENTER to start the timer!")
@@ -50,46 +47,42 @@ def prompt_start():
 def process_pairs(all_pairs):
     total_pairs, dnf_count = 0, 0
     times, incorrect = [], []
-    for pair in all_pairs:
+    for letterpair in all_pairs:
         total_pairs += 1
-        result = process_single_pair(pair)
+        result = process_single_pair(letterpair)
         if result is None:
             break
         dnf_count += result['dnf']
         times.append(result['time'])
         if result['incorrect']:
-            incorrect.append(pair)
+            incorrect.append(letterpair)
     return total_pairs, dnf_count, times, incorrect
 
-def process_single_pair(pair):
-    letter1, letter2 = str(pair[0]), str(pair[1])
-    print(pair)
+def process_single_pair(letterpair):
+    print(letterpair)
     start = dt.now()
     inp = input()
     stop = dt.now()
     if inp and inp != "o":
-        print_table(letter1, letter2, WHITE)
+        print_table(letterpair, WHITE)
         return None
     time = round(get_seconds(stop - start), 2)
-    return evaluate_pair(letter1, letter2, time, inp)
+    return evaluate_pair(letterpair, time, inp)
 
-def evaluate_pair(letter1, letter2, time, inp):
-    if inp == "o" or time >= 7.0:
-        print_table(letter1, letter2, RED)
+def evaluate_pair(letterpair, time, inp):
+    if inp == "o" or time >= 5.0:
+        print_table(letterpair, RED)
         return {"time": "DNF", "dnf": 1, "incorrect": True}
-    elif time >= 4.0:
-        print_table(letter1, letter2, YELLOW)
+    elif time >= 3.0:
+        print_table(letterpair, YELLOW)
         return {"time": time, "dnf": 0, "incorrect": False}
     else:
-        print_table(letter1, letter2, GREEN)
+        print_table(letterpair, GREEN)
         return {"time": time, "dnf": 0, "incorrect": False}
 
-def print_table(letter1, letter2, color):
-    index1 = BLD.index(letter1)
-    index2 = BLD.index(letter2)
-    for j in range(3):
-        content_line = table[4*index1 + j + 1, index2]
-        print(f"\033[{color}m" + str(content_line) + "\033[0m") # ]]
+def print_table(letterpair, color):
+    content_line = pair_dict[letterpair]
+    print(f"\033[{color}m" + str(content_line) + "\033[0m") # ]]
     print("")
 
 def print_stats(total_pairs, dnf_count, times, total_time):
@@ -108,7 +101,7 @@ def get_accuracy(total_pairs, dnf_count):
     accuracy = (total_pairs-dnf_count)/total_pairs
     return round(100*accuracy, 1)
 
-def save_list_to_txt(input_list):
+def save_list_to_txt(input_list, save_file):
     with open(save_file, 'a') as file:
         rd.shuffle(input_list)
         for item in input_list:
@@ -158,19 +151,34 @@ def average(values):
     return round(sum(values)/len(values), 2)
 
 def help():
-    print("""Arguments must be passed in the order as shown:    [letter_1] [letter_2] [column/row]
+    print("""Arguments must be passed in the order as shown: [pao] [letter_1] [letter_2] [column/row]
+             - [pao] is a char in {p, a, o} (default=p).
              - [letter_1] is a char in BLD (default=A).
-             - [letter_2] is a char in BLD (default=X).
-             - [column/row] is a char in {c,r} (default=c).""")
+             - [letter_2] is a char in BLD (default=Z).
+             - [column/row] is a char in {c, r} (default=c).""")
 
 if __name__ == "__main__":
-    table = np.genfromtxt(input_file, delimiter=',', dtype= str)[:,1:]
+    if(len(sys.argv) == 5 and sys.argv[1] in ["p", "a", "o"] and sys.argv[2] in BLD and sys.argv[3] in BLD and sys.argv[4] in ["c", "r"]):
 
-    if(len(sys.argv) == 4 and sys.argv[1] in BLD and sys.argv[2] in BLD and sys.argv[3] in ["c", "r"]):
-        if sys.argv[3] == "r":
-            all_pairs = get_rows(sys.argv[1], sys.argv[2])
+        if sys.argv[1] == "p":
+            input_file = "/home/hiesl/shell_files/input_files/pao_person.csv"
+            save_file = "/home/hiesl/shell_files/input_files/inc_person.txt"
+        elif sys.argv[1] == "a":
+            input_file = "/home/hiesl/shell_files/input_files/pao_action.csv"
+            save_file = "/home/hiesl/shell_files/input_files/inc_action.txt"
         else:
-            all_pairs = get_columns(sys.argv[1], sys.argv[2])
-        ask_pao(all_pairs)
+            input_file = "/home/hiesl/shell_files/input_files/pao_object.csv"
+            save_file = "/home/hiesl/shell_files/input_files/inc_object.txt"
+
+        if sys.argv[4] == "r":
+            all_pairs = get_rows(sys.argv[2], sys.argv[3])
+        else:
+            all_pairs = get_columns(sys.argv[2], sys.argv[3])
+
+        with open(input_file, newline='', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile, delimiter=';')
+            pair_dict = {row[0]: row[1] for row in reader}
+
+        ask_pao(all_pairs, save_file)
     else:
         help()
