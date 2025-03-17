@@ -152,14 +152,14 @@ if __name__ == "__main__":
     if(len(sys.argv) == 2 and sys.argv[1] in ["p", "a", "o"]):
 
         if sys.argv[1] == "p":
-            input_file = "/home/hiesl/shell_files/input_files/pao_person.csv"
-            save_file = "/home/hiesl/shell_files/input_files/inc_person.txt"
+            input_file = "/home/hiesl/linux/shell_files/input_files/pao_person.csv"
+            save_file = "/home/hiesl/linux/shell_files/input_files/inc_person.txt"
         elif sys.argv[1] == "a":
-            input_file = "/home/hiesl/shell_files/input_files/pao_action.csv"
-            save_file = "/home/hiesl/shell_files/input_files/inc_action.txt"
+            input_file = "/home/hiesl/linux/shell_files/input_files/pao_action.csv"
+            save_file = "/home/hiesl/linux/shell_files/input_files/inc_action.txt"
         else:
-            input_file = "/home/hiesl/shell_files/input_files/pao_object.csv"
-            save_file = "/home/hiesl/shell_files/input_files/inc_object.txt"
+            input_file = "/home/hiesl/linux/shell_files/input_files/pao_object.csv"
+            save_file = "/home/hiesl/linux/shell_files/input_files/inc_object.txt"
 
         with open(input_file, newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')

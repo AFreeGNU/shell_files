@@ -92,8 +92,8 @@ def print_stats(total_pairs, dnf_count, times, total_time):
     avg = average(times)
     if avg == "DNF":
         print("The average is a DNF!")
-    elif avg == "To short for average.":
-        print("To short for average.")
+    elif avg == "Too short for average.":
+        print("Too short for average.")
     else:
         print("Average of", total_pairs, "is", avg, "seconds.")
 
@@ -139,7 +139,7 @@ def average(values):
     if num_dnf > number:
         return "DNF"
     if len(values) <= 2:
-        return "To short for average."
+        return "Too short for average."
     num_bad = number - num_dnf
     for _ in range(num_dnf):
         values.remove("DNF")
@@ -161,14 +161,14 @@ if __name__ == "__main__":
     if(len(sys.argv) == 5 and sys.argv[1] in ["p", "a", "o"] and sys.argv[2] in BLD and sys.argv[3] in BLD and sys.argv[4] in ["c", "r"]):
 
         if sys.argv[1] == "p":
-            input_file = "/home/hiesl/shell_files/input_files/pao_person.csv"
-            save_file = "/home/hiesl/shell_files/input_files/inc_person.txt"
+            input_file = "/home/hiesl/linux/shell_files/input_files/pao_person.csv"
+            save_file = "/home/hiesl/linux/shell_files/input_files/inc_person.txt"
         elif sys.argv[1] == "a":
-            input_file = "/home/hiesl/shell_files/input_files/pao_action.csv"
-            save_file = "/home/hiesl/shell_files/input_files/inc_action.txt"
+            input_file = "/home/hiesl/linux/shell_files/input_files/pao_action.csv"
+            save_file = "/home/hiesl/linux/shell_files/input_files/inc_action.txt"
         else:
-            input_file = "/home/hiesl/shell_files/input_files/pao_object.csv"
-            save_file = "/home/hiesl/shell_files/input_files/inc_object.txt"
+            input_file = "/home/hiesl/linux/shell_files/input_files/pao_object.csv"
+            save_file = "/home/hiesl/linux/shell_files/input_files/inc_object.txt"
 
         if sys.argv[4] == "r":
             all_pairs = get_rows(sys.argv[2], sys.argv[3])

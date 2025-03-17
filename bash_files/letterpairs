@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 ~/shell_files/python_files/letterpairs.py ${1:-529}
+python3 ~/linux/shell_files/python_files/letterpairs.py ${1:-529}

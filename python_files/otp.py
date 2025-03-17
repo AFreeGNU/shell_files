@@ -61,7 +61,7 @@ def type_message():
         x = input()
         i = len(x)
         if i==0:
-            key_file = open('/home/hiesl/shell_files/input_files/key.txt', 'w')
+            key_file = open('/home/hiesl/linux/shell_files/input_files/key.txt', 'w')
             key_file.write(shared_key)
             key_file.close()
             break
@@ -72,14 +72,14 @@ def create_key(key_length):
     key = ''
     for _ in range(key_length):
         key += str(secrets.randbelow(10))
-    key_file = open('/home/hiesl/shell_files/input_files/key.txt', 'w')
+    key_file = open('/home/hiesl/linux/shell_files/input_files/key.txt', 'w')
     key_file.write(key)
     key_file.close()
 
 def import_key():
     global shared_key
     global key_length
-    key_file = open('/home/hiesl/shell_files/input_files/key.txt', 'r')
+    key_file = open('/home/hiesl/linux/shell_files/input_files/key.txt', 'r')
     shared_key = key_file.read()
     key_length = len(shared_key)
     key_file.close()

@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 ~/shell_files/python_files/pwgen.py ${1:-25} ${2:-num_cs} ${3:-pass}
+python3 ~/linux/shell_files/python_files/pwgen.py ${1:-25} ${2:-num_cs} ${3:-pass}

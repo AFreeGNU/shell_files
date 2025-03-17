@@ -1,9 +1,9 @@
 import numpy as np
 import sys
 
-wordsstring = ''.join(np.genfromtxt("/home/hiesl/shell_files/input_files/2309-wordle-words.txt", delimiter = " ", dtype=str))
-full_words = np.genfromtxt("/home/hiesl/shell_files/input_files/valid-wordle-words.txt", dtype=str)
-old_words = np.genfromtxt("/home/hiesl/shell_files/input_files/old-wordle-words.txt", dtype=str)
+wordsstring = ''.join(np.genfromtxt("/home/hiesl/linux/shell_files/input_files/2309-wordle-words.txt", delimiter = " ", dtype=str))
+full_words = np.genfromtxt("/home/hiesl/linux/shell_files/input_files/valid-wordle-words.txt", dtype=str)
+old_words = np.genfromtxt("/home/hiesl/linux/shell_files/input_files/old-wordle-words.txt", dtype=str)
 abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 green = []
 yellow = []

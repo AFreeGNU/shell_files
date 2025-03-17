@@ -2,7 +2,7 @@ import numpy as np
 import datetime as dt
 import sys
 
-pi = str(np.genfromtxt("/home/hiesl/shell_files/input_files/pi.txt", dtype=str))
+pi = str(np.genfromtxt("/home/hiesl/linux/shell_files/input_files/pi.txt", dtype=str))
 
 def pao(w_pos, start_digit):
     if w_pos % 6 == 0:

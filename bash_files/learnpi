@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 ~/shell_files/python_files/learnpi.py ${1:-0} ${2:-0} ${3:-10000}
+python3 ~/linux/shell_files/python_files/learnpi.py ${1:-0} ${2:-0} ${3:-10000}

@@ -2,9 +2,9 @@ import numpy as np
 import datetime as dt
 import sys
 
-table =  np.genfromtxt("/home/hiesl/shell_files/input_files/pao0099.csv", delimiter=',', dtype= str)[:,1:]
+table =  np.genfromtxt("/home/hiesl/linux/shell_files/input_files/pao0099.csv", delimiter=',', dtype= str)[:,1:]
 
-pi = str(np.genfromtxt("/home/hiesl/shell_files/input_files/pi.txt", dtype=str))
+pi = str(np.genfromtxt("/home/hiesl/linux/shell_files/input_files/pi.txt", dtype=str))
 
 def give_pao(n1, n2, place):
     return str(table[int(n1)+3*int(n1)+1+place, int(n2)])

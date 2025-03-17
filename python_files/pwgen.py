@@ -11,8 +11,8 @@ ci = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
 num = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 bin = ['0', '1']
 pao = ['a', 'b', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x']
-dice_en = np.genfromtxt("/home/hiesl/shell_files/input_files/dice_en.txt", dtype=str)
-dice_de = np.genfromtxt("/home/hiesl/shell_files/input_files/dice_de.txt", dtype=str)
+dice_en = np.genfromtxt("/home/hiesl/linux/shell_files/input_files/dice_en.txt", dtype=str)
+dice_de = np.genfromtxt("/home/hiesl/linux/shell_files/input_files/dice_de.txt", dtype=str)
 
 def create_password(pw_length, pw_signs):
     global bits
