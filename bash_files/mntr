@@ -22,6 +22,8 @@ elif [[ "$input_string" == "dp3" ]]; then
   xrandr --output eDP-1 --off --output DP-3 --primary --auto
 elif [[ "$input_string" == "hdmi" ]]; then
   xrandr --output eDP-1 --auto --output HDMI-1 --auto --right-of eDP-1
+elif [[ "$input_string" == "hdmiprime" ]]; then
+  xrandr --output eDP-1 --off --output HDMI-1 --primary --auto
 elif [[ "$input_string" == "split" ]]; then
   xrandr --output eDP-1 --auto --output DP-3 --primary --auto --right-of eDP-1
 elif [[ "$input_string" == "off" ]]; then
@@ -31,4 +33,4 @@ else
   usage
 fi
 
-i3-msg restart > /dev/null 2>&1
+/home/hiesl/linux/scripts/fehbg
