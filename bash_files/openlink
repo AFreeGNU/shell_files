@@ -1,3 +1,0 @@
-#!/bin/bash
-link_file="/home/hiesl/.links/link.txt"
-cat "$link_file" | xargs -I {} firefox "{}"
