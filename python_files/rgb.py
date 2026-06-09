@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import random as rd
 
 numbers = [i for i in range(256)]

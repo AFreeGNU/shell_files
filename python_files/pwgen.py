@@ -1,47 +1,90 @@
-import secrets
-import sys
-import numpy as np
+#!/usr/bin/env python3
+
+import argparse
 import math
+import secrets
+import string
+from pathlib import Path
 
-ascii = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '.', ',', '!', '?', ':', ';', "'", '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', '+', '-', '*', '/', '(', ')', '[', ']', '{', '}', '@', '§', '$', '%', '&', '~', '#', '_', '<', '>', '|', '^', 'ä', 'ö', 'ü', 'Ä', 'Ö', 'Ü', 'ß']
-num_cs = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-num_ci = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-cs = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-ci = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-num = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-bin = ['0', '1']
-pao = ['a', 'b', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x']
-dice_en = np.genfromtxt("/home/hiesl/linux/shell_files/input_files/dice_en.txt", dtype=str)
-dice_de = np.genfromtxt("/home/hiesl/linux/shell_files/input_files/dice_de.txt", dtype=str)
+CHARSETS = {
+    "ascii": string.ascii_letters + string.digits + string.punctuation,
+    "num_cs": string.ascii_letters + string.digits,
+    "num_ci": string.ascii_lowercase + string.digits,
+    "cs": string.ascii_letters,
+    "ci": string.ascii_lowercase,
+    "num": string.digits,
+    "bin": "01",
+    "pao": "abdefghijklmnopqrstuvwx",
+}
 
-def create_password(pw_length, pw_signs):
-    global bits
-    password = ""
-    bits = round(math.log(len(pw_signs),2)*pw_length,1)
-    if len(pw_signs) != len(dice_de):
-        for i in range(pw_length):
-            password += str(secrets.choice(pw_signs))
+WORDLISTS = {
+    "dice-en": Path("/home/hiesl/linux/shell_files/input_files/dice_en.txt").expanduser(),
+    "dice-de": Path("/home/hiesl/linux/shell_files/input_files/dice_de.txt").expanduser(),
+}
+
+def load_wordlist(path):
+    return Path(path).read_text().splitlines()
+
+def entropy(n_symbols, length):
+    return length * math.log2(n_symbols)
+
+def generate_password(length, alphabet, group=None):
+    chars = [secrets.choice(alphabet) for _ in range(length)]
+    if group is not None:
+        return "-".join("".join(chars[i:i+group]) for i in range(0, len(chars), group))
+    return "".join(chars)
+
+def generate_passphrase(n_words, words):
+    return "-".join(secrets.choice(words) for _ in range(n_words))
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    "length",
+    type=int,
+    nargs="?",
+    default=25,
+    help="Password length (default: 25)",
+)
+
+parser.add_argument(
+    "--charset",
+    choices=list(CHARSETS) + list(WORDLISTS),
+    default="num_cs",
+    help="Select character set",
+)
+
+parser.add_argument(
+    "--group",
+    type=int,
+    help="Insert dashes every N characters",
+)
+
+parser.add_argument(
+    "--bits",
+    action="store_true",
+    help="Print entropy estimate",
+)
+
+args = parser.parse_args()
+
+def main():
+
+    charset = args.charset
+
+    if charset in WORDLISTS:
+        words = WORDLISTS[charset].read_text().splitlines()
+        password = generate_passphrase(args.length, words)
+        H = entropy(len(words), args.length)
     else:
-        for i in range(pw_length):
-            password += str(secrets.choice(pw_signs))
-            if i < pw_length-1:
-                password += "-"
-    return password
+        alphabet = CHARSETS[charset]
+        password = generate_password(args.length, alphabet, args.group)
+        H = entropy(len(alphabet), args.length)
 
-def help():
-    print("""Arguments must be passed in the order as shown:    [pwlen] [pwchars] [bits]
-             - [pwlen] is the length of the password as int (default=20).
-             - [pwchars] is either in {ascii, num_cs, num_ci, cs, ci, num, bin, pao, dice_en, dice_de} or any string (default=num_cs).
-             - [bits] calculates the password strength if "bits" is passed (optional).""")
+    print(password)
 
-if(len(sys.argv) == 4 and sys.argv[1].isdigit()):
-    password = create_password(int(sys.argv[1]), eval(sys.argv[2]) if sys.argv[2] in ['ascii', 'num_cs', 'num_ci', 'cs', 'ci', 'num', 'bin', 'pao', 'dice_en', 'dice_de'] else sys.argv[2])
-    if str(sys.argv[3]) == "bits":
-        print(password)
-        print("Strength:", bits, "bits.")
-    elif sys.argv[3] == "pass":
-        print(password)
-    else:
-        help()
-else:
-    help()
+    if args.bits:
+        print(f"Entropy: {H:.1f} bits")
+
+if __name__ == "__main__":
+    main()
