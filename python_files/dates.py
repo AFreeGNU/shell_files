@@ -1,49 +1,47 @@
+#!/usr/bin/env python3
+
+import argparse
 from datetime import datetime
 import math
 import random as rd
-import sys
 
-def anchor(year):
-    century = math.floor(year/100)
-    century_anchor = (5*(century%4))%7+2
-    decade = year-century*100
-    if decade%2 != 0: decade += 11
+def get_anchor(year):
+    century = math.floor(year / 100)
+    century_anchor = (5 * (century % 4)) % 7 + 2
+    decade = year - century * 100
+    if decade % 2 != 0: decade += 11
     decade /= 2
-    if decade%2 != 0: decade += 11
-    decade_anchor = 7-(decade%7)
-    return int((decade_anchor+century_anchor)%7)
+    if decade % 2 != 0: decade += 11
+    decade_anchor = 7 - (decade % 7)
+    return int((decade_anchor + century_anchor) % 7)
 
 def is_leap(year):
-    if year%4 != 0:
+    if year % 4 != 0:
         return False
-    if year%100 == 0 and year%400 != 0:
+    if year % 100 == 0 and year % 400 != 0:
         return False
     return True
 
 def rd_date(min_year, max_year):
     rd_year = rd.randint(min_year, max_year)
-    rd_month = rd.randint(1,12)
+    rd_month = rd.randint(1, 12)
     offset = 0
     if is_leap(rd_year):
         offset = 1
     if rd_month in [1, 3, 5, 7, 8, 10, 12]:
-        rd_day = rd.randint(1,31)
+        rd_day = rd.randint(1, 31)
     if rd_month in [4, 6, 9, 11]:
-        rd_day = rd.randint(1,30)
+        rd_day = rd.randint(1, 30)
     else:
-        rd_day = rd.randint(1, 28+offset)
+        rd_day = rd.randint(1, 28 + offset)
     return [rd_day, rd_month, rd_year]
 
 def print_date(date):
-    print(str(date[0])+"."+str(date[1])+"."+str(date[2]))
+    print(f"{date[0]}.{date[1]}.{date[2]}")
 
-def weekday(date):
+def get_weekday(date):
     date = datetime(date[2], date[1], date[0])
     return date.weekday()
-
-def get_seconds(time):
-    time_digits = list(str(time))
-    return int(time_digits[0])*60*60+int(time_digits[2])*10*60+int(time_digits[3])*60+int(time_digits[5])*10+int(time_digits[6])+int(time_digits[8])*0.1+int(time_digits[9])*0.01
 
 def ask_date(max_attempts, min_year, max_year):
     weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -58,37 +56,37 @@ def ask_date(max_attempts, min_year, max_year):
             date = rd_date(min_year, max_year)
             start = datetime.now()
             print_date(date)
+            day = get_weekday(date)
+            anchor = get_anchor(date[2])
             inp = input()
             try:
                 int(inp)
             except:
-                print("Attempt abortet! The correct weekday would have been:", weekdays[weekday(date)]+".", "Anchor:", str(anchor(date[2]))+".")
+                print("Attempt abortet!")
+                print(f"The correct weekday would have been {weekdays[day]}. Anchor: {anchor}.")
                 break
             if int(inp) > 7 or int(inp) < 0:
-                print("Attempt abortet! The correct weekday would have been:", weekdays[weekday(date)]+".", "Anchor:", str(anchor(date[2]))+".")
+                print("Attempt abortet!")
+                print(f"The correct weekday would have been {weekdays[day]}. Anchor: {anchor}.")
                 break
-            if int(inp)%7 == (weekday(date)+1)%7:
-                stop = datetime.now()
+            stop = datetime.now()
+            seconds = round((stop-start).total_seconds(), 2)
+            if int(inp) % 7 == (day + 1) % 7:
                 count += 1
                 global_count += 1
-                times.append(round(get_seconds(stop-start),2))
-                print("Correct! It is a", weekdays[weekday(date)]+".", "You took:", round(get_seconds(stop-start),2), "seconds.", "Anchor:", str(anchor(date[2]))+".\n")
+                times.append(seconds)
+                print(f"Correct! It is a {weekdays[day]}. You took: {seconds} seconds. Anchor: {anchor}.\n")
             else:
-                stop = datetime.now()
                 global_count += 1
                 times.append("DNF")
-                print("Wrong! The correct weekday is:", weekdays[weekday(date)]+".", "You took:", round(get_seconds(stop-start),2), "seconds.", "Anchor:", str(anchor(date[2]))+".\n")
+                print(f"Wrong! The correct weekday is: {weekdays[day]}. You took: {seconds} seconds. Anchor: {anchor}.\n")
         stop_global = datetime.now()
-        print("You got", count, "of", global_count, "correct in", stop_global-start_global)
+        global_time = stop_global - start_global
+        print(f"You got {count} of {global_count} correct in {global_time}.")
         if count > 1:
-            print("Ratio:", round(get_seconds(stop_global-start_global)/count, 2), "Seconds/Date")
-            print("Average of", len(times), "is:", average(times))
+            print(f"Ratio: {round(global_time.total_seconds() / count, 2)} Seconds/Date")
+            print(f"Average of {len(times)} is: {average(times)}")
     else: return print("Attempt aborted!")
-
-def give_weekday(day, month, year):
-    weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    date = datetime(year, month, day)
-    print("The", str(day)+"."+str(month)+"."+str(year), "is a", str(weekdays[date.weekday()])+".")
 
 def count_list(lst, x):
     count = 0
@@ -115,13 +113,35 @@ def average(values):
         values.pop(0)
     return round(sum(values)/len(values),2)
 
-def help():
-    print("""Arguments must be passed in the order as shown:    [attempts] [min_year] [max_year]
-             - [attempts] is the number of attempts (default=5).
-             - [min_year] is the lower bound of the year interval (default=1600).
-             - [max_year] is the upper bound of the year interval (default=2300).""")
+def main():
+    parser = argparse.ArgumentParser(
+        description="Practice the Doomsday algorithm."
+    )
 
-if(len(sys.argv) == 4 and sys.argv[1].isdigit() and sys.argv[2].isdigit() and sys.argv[3].isdigit()):
-    ask_date(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]))
-else:
-    help()
+    parser.add_argument(
+        "-n", "--attempts",
+        type=int,
+        default=5,
+        help="number of questions to ask (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--min-year",
+        type=int,
+        default=1600,
+        help="earliest year to use (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--max-year",
+        type=int,
+        default=2300,
+        help="latest year to use (default: %(default)s)",
+    )
+
+    args = parser.parse_args()
+
+    ask_date(args.attempts, args.min_year, args.max_year)
+
+if __name__ == "__main__":
+    main()

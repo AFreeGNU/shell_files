@@ -1,33 +1,19 @@
+#!/usr/bin/env python3
+
+import argparse
 import random as rd
 import datetime as dt
 import math
-import sys
-
-def get_seconds(time):
-    time_digits = list(str(time))
-    return int(time_digits[0])*60*60+int(time_digits[2])*10*60+int(time_digits[3])*60+int(time_digits[5])*10+int(time_digits[6])+int(time_digits[8])*0.1+int(time_digits[9])*0.01
 
 def calculate(a, b, operation):
-    if operation == "x": return a*b
-    if operation == "+": return a+b
-    if operation == "-": return a-b
-    if operation == "^": return a**b
-    #if operation == "/": return a/b
+    if operation == "mul": return a * b
+    if operation == "add": return a + b
+    if operation == "sub": return a - b
+    if operation == "pow": return a**b
 
-def calculation(operation, digit_1, digit_2, max_attempts):
-    d_1 = "1"
-    d_2 = "1"
-    if digit_1 != 1:
-        for _ in range(digit_1-1):
-            d_1 += "0"
-    if digit_2 != 1:
-        for _ in range(digit_2-1):
-            d_2 += "0"
-    d_1 = int(d_1)
-    d_2 = int(d_2)
-    if operation == "^":
-        d_2 = digit_2
-    i=1
+def calculation(operation, decimals_1, decimals_2, max_attempts):
+    operation_dict = {"add" : "+", "sub" : "-", "mul" : "*", "pow" : "^"}
+    i = 1
     times = []
     print("Push ENTER to start the timer!")
     inp = input()
@@ -35,40 +21,40 @@ def calculation(operation, digit_1, digit_2, max_attempts):
         start_global = dt.datetime.now()
         count = 0
         global_count = 0
-        while i>0:
-            a = rd.randint(d_1+1, d_1*10-1)
-            if operation != "^":
-                b = rd.randint(d_2+1, d_2*10-1)
-            else:
-                b = digit_2
-            print(a, operation, b)
+        while i > 0:
+            number_1 = rd.randint(10**(decimals_1 - 1), 10**decimals_1 - 1)
+            number_2 = rd.randint(10**(decimals_2 - 1), 10**decimals_2 - 1)
+            if operation == "pow":
+                number_2 = decimals_2
+            print(number_1, operation_dict[operation], number_2)
+            result = calculate(number_1, number_2, operation)
             start = dt.datetime.now()
             inp = input()
             try:
                 int(inp)
             except:
-                return print("Attempt abortet! The correct answer would have been:", str(calculate(a,b,operation))+".")
+                return print(f"Attempt abortet! The correct answer would have been: {result}.")
             if len(inp) == 0:
                 break
-            if int(inp) == calculate(a,b,operation):
-                stop = dt.datetime.now()
-                times.append(round(get_seconds(stop-start),2))
-                count+=1
+            stop = dt.datetime.now()
+            seconds = round((stop - start).total_seconds(), 2)
+            if int(inp) == result:
+                times.append(seconds)
+                count += 1
                 global_count += 1
-                print("Correct! You took", round(get_seconds(stop-start),2), "seconds.")
+                print(f"Correct! You took {seconds} seconds.\n")
             else:
-                stop = dt.datetime.now()
                 times.append("DNF")
                 global_count += 1
-                print("Wrong! Answer:", str(calculate(a,b,operation))+".","You took", round(get_seconds(stop-start),2), "seconds.")
+                print(f"Wrong! Answer: {result}. You took {seconds} seconds.\n")
             if  global_count == max_attempts:
                 break
         stop_global = dt.datetime.now()
-        print("\n")
-        print("You got", count, "of", global_count, "correct in", stop_global-start_global)
+        global_time = stop_global - start_global
+        print(f"\nYou got {count} of {global_count} correct in {global_time}.")
         if count != 0:
-            print("Ratio:", round(get_seconds(stop_global-start_global)/count, 2))
-            print("Average of", len(times), "is:", average(times))
+            print("Ratio:", round(global_time.total_seconds() / count, 2))
+            print(f"Average of {len(times)} is {average(times)}.")
     else: return print("Attempt aborted!")
 
 def count_list(lst, x):
@@ -96,14 +82,42 @@ def average(values):
         values.pop(0)
     return round(sum(values)/len(values),2)
 
-def help():
-    print("""Arguments must be passed in the order as shown:    [operation] [digit_1] [digit_2] [attempts]
-             - [operation] is a char in {+,-,x,^} (default=x).
-             - [digit_1] is the number of digits (default=2).
-             - [digit_2] is the number of digits (default=1).
-             - [attempts] is the number of attempts (default=5).""")
+def main():
+    parser = argparse.ArgumentParser(
+        description="Practice arithmetic."
+    )
 
-if(len(sys.argv) == 5 and sys.argv[1] in ["+","-","x","^"] and sys.argv[2].isdigit() and sys.argv[3].isdigit() and sys.argv[4].isdigit()):
-    calculation(str(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))
-else:
-    help()
+    parser.add_argument(
+        "-n", "--attempts",
+        type=int,
+        default=5,
+        help="number of questions (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--decimals1",
+        type=int,
+        default=2,
+        help="number of digits in the first operand (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--decimals2",
+        type=int,
+        default=1,
+        help="number of digits in the second operand (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "-o", "--operation",
+        choices=["add", "sub", "mul", "pow"],
+        default="mul",
+        help="operation to practice (default: %(default)s)",
+    )
+
+    args = parser.parse_args()
+
+    calculation(args.operation, args.decimals1, args.decimals2, args.attempts)
+
+if __name__ == "__main__":
+    main()

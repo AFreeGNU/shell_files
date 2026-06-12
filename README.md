@@ -1,8 +1,8 @@
-# Useful Bash-Programs
+# Useful Python Programs
 
-This is a collection of all my python scripts and their corresponding bash scripts such that they can be executed as commands from the command line with bash.
+This is a collection of some python scripts for various fun programs.
 
-It is recommended to place (or better symlink) the desired executable scripts somewhere in your `$PATH`.
+It is recommended symlink the scripts somewhere in your `$PATH`.
 
 # License
 

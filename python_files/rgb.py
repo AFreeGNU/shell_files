@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-import random as rd
 
-numbers = [i for i in range(256)]
+import random as rd
 
 def print_rgb(input, r, g, b):
     print(f"\033[48;2;{r};{g};{b}m"+f"{input}"+"\033[0m")
@@ -11,8 +10,9 @@ def format_input(inp):
     return [int(string) for string in sliced]
 
 def ask_rgb():
+    numbers = [i for i in range(256)]
     i = 1
-    while i>0:
+    while i > 0:
         r = rd.choice(numbers)
         g = rd.choice(numbers)
         b = rd.choice(numbers)

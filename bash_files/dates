@@ -1,2 +1,0 @@
-#!/bin/bash
-python3 ~/linux/shell_files/python_files/dates.py ${1:-5} ${2:-1600} ${3:-2300}

@@ -37,41 +37,39 @@ def generate_password(length, alphabet, group=None):
 def generate_passphrase(n_words, words):
     return "-".join(secrets.choice(words) for _ in range(n_words))
 
-parser = argparse.ArgumentParser()
-
-parser.add_argument(
-    "length",
-    type=int,
-    nargs="?",
-    default=25,
-    help="Password length (default: 25)",
-)
-
-parser.add_argument(
-    "--charset",
-    choices=list(CHARSETS) + list(WORDLISTS),
-    default="num_cs",
-    help="Select character set",
-)
-
-parser.add_argument(
-    "--group",
-    type=int,
-    help="Insert dashes every N characters",
-)
-
-parser.add_argument(
-    "--bits",
-    action="store_true",
-    help="Print entropy estimate",
-)
-
-args = parser.parse_args()
-
 def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "length",
+        type=int,
+        nargs="?",
+        default=25,
+        help="Password length (default: 25)",
+    )
+
+    parser.add_argument(
+        "--charset",
+        choices=list(CHARSETS) + list(WORDLISTS),
+        default="num_cs",
+        help="Select character set",
+    )
+
+    parser.add_argument(
+        "--group",
+        type=int,
+        help="Insert dashes every N characters",
+    )
+
+    parser.add_argument(
+        "--bits",
+        action="store_true",
+        help="Print entropy estimate",
+    )
+
+    args = parser.parse_args()
 
     charset = args.charset
-
     if charset in WORDLISTS:
         words = WORDLISTS[charset].read_text().splitlines()
         password = generate_passphrase(args.length, words)

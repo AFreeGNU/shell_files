@@ -1,18 +1,42 @@
+#!/usr/bin/env python3
+
+import argparse
 from datetime import datetime
-import sys
 
 def give_weekday(day, month, year):
     weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     date = datetime(year, month, day)
-    print("The", str(day)+"."+str(month)+"."+str(year), "is a", str(weekdays[date.weekday()])+".")
+    print(f"The {day}.{month}.{year} is a {weekdays[date.weekday()]}.")
 
-def help():
-    print("""Arguments must be passed in the order as shown:    [day] [month] [year]
-             - [day] in int (no default).
-             - [month] in int (no default).
-             - [year] in int (no default).""")
+def main():
+    parser = argparse.ArgumentParser(
+        description="Get the weekday for any date."
+    )
 
-if(len(sys.argv) == 4 and sys.argv[1].isdigit() and sys.argv[2].isdigit() and sys.argv[3].isdigit()):
-    give_weekday(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]))
-else:
-    help()
+    parser.add_argument(
+        "-d", "--day",
+        type=int,
+        required=True,
+        help="day of the date",
+    )
+
+    parser.add_argument(
+        "-m", "--month",
+        type=int,
+        required=True,
+        help="month of the date",
+    )
+
+    parser.add_argument(
+        "-y", "--year",
+        type=int,
+        required=True,
+        help="year of the date",
+    )
+
+    args = parser.parse_args()
+
+    give_weekday(args.day, args.month, args.year)
+
+if __name__ == "__main__":
+    main()

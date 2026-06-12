@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
+
+import argparse
 import numpy as np
-import sys
 
 wordsstring = ''.join(np.genfromtxt("/home/hiesl/linux/shell_files/input_files/2309-wordle-words.txt", delimiter = " ", dtype=str))
 full_words = np.genfromtxt("/home/hiesl/linux/shell_files/input_files/valid-wordle-words.txt", dtype=str)
@@ -195,16 +197,35 @@ def find_word_without_old(word_list):
     print(f"The best three possible words excluding already used words are (total {length}):")
     return key_with_largest_value
 
-def help():
-    print("""Arguments must be passed in the order as shown:    [words] [pos]
-             - [words] in string, no spaces (no default).
-             - [pos] in string, no spaces, 0 for grey, 1 for yellow, 2 for green (no default).""")
+def main():
+    parser = argparse.ArgumentParser(
+        description="Wordle guesser."
+    )
 
-if(len(sys.argv) == 3 and check_word_list(str(sys.argv[1])) and check_int_list(str(sys.argv[2]))):
-    print(order_words(wordle(make_word_list(str(sys.argv[1])), make_int_list(str(sys.argv[2])))), "\n")
-    print(find_word_impossible(words), "\n")
-    print(find_word(words), "\n")
-    words_without_olds = [item for item in words if item not in old_words]
-    print(find_word_without_old(words_without_olds))
-else:
-    help()
+    parser.add_argument(
+        "--words",
+        type=str,
+        required=True,
+        help="words without spaces",
+    )
+
+    parser.add_argument(
+        "--pos",
+        type=str,
+        required=True,
+        help="positional information without spaces, 0 = gray, 1 = yellow, 2 = green",
+    )
+
+    args = parser.parse_args()
+
+    if check_word_list(args.words) and check_int_list(args.pos):
+        print(order_words(wordle(make_word_list(args.words), make_int_list(args.pos))), "\n")
+        print(find_word_impossible(words), "\n")
+        print(find_word(words), "\n")
+        words_without_olds = [item for item in words if item not in old_words]
+        print(find_word_without_old(words_without_olds))
+    else:
+        raise ValueError("Incorrect input formatting")
+
+if __name__ == "__main__":
+    main()
