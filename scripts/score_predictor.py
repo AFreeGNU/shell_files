@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/hiesl/phd/plot/.venv/bin/python3
 
 """
 World Cup Score Predictor from Betting Odds
@@ -23,9 +23,15 @@ Fitting:
   assumption needed. Dixon-Coles correction (rho=-0.13) is applied to
   fix Poisson's known draw underestimation.
 
+Knockout mode (--knockout):
+  Use after-90-min 1X2 odds as usual. Draw scorelines are simply
+  excluded from the optimizer — the home/away asymmetry in the fitted
+  lambdas naturally breaks any tie between e.g. 1-0 and 0-1.
+
 Usage:
-  python wc_score_predictor.py --home 1.40 --draw 4.60 --away 8.25
-  python wc_score_predictor.py --home 2.60 --draw 3.00 --away 2.90
+  python score_predictor.py --home 1.40 --draw 4.60 --away 8.25
+  python score_predictor.py --home 2.60 --draw 3.00 --away 2.90 -v
+  python score_predictor.py --knockout --home 1.55 --draw 4.20 --away 2.60 -v
 """
 
 import argparse
@@ -86,7 +92,6 @@ def fit_lambdas(p_home_target: float, p_draw_target: float, max_goals: int = 8) 
         raise RuntimeError(f"Could not fit lambdas: {sol.message}")
     return float(sol.x[0]), float(sol.x[1])
 
-
 def kicktipp_points(guess_h: int, guess_a: int, actual_h: int, actual_a: int) -> int:
     guess_is_draw  = (guess_h  == guess_a)
     actual_is_draw = (actual_h == actual_a)
@@ -115,6 +120,7 @@ def analyse(
     home_odds: float,
     draw_odds: float,
     away_odds: float,
+    knockout: bool = False,
     top_n: int = 10,
     verbose: bool = False,
     ) -> None:
@@ -128,10 +134,12 @@ def analyse(
     mat = score_matrix(lam_h, lam_a, MAX_GOALS)
     ph, pd, pa = outcome_probs(mat)
 
+    # In knockout mode only consider non-draw scorelines as guesses.
     all_scores = [
         (mat[h][a], expected_points(h, a, mat), h, a)
         for h in range(MAX_GOALS + 1)
         for a in range(MAX_GOALS + 1)
+        if not (knockout and h == a)
     ]
     by_prob = sorted(all_scores, key=lambda x: -x[0])
     by_pts  = sorted(all_scores, key=lambda x: -x[1])
@@ -140,7 +148,8 @@ def analyse(
 
     if verbose:
         print("=" * 57)
-        print("  WORLD CUP SCORE PREDICTOR  (Kicktipp edition)")
+        mode_label = "KNOCKOUT" if knockout else "GROUP STAGE"
+        print(f"  WORLD CUP SCORE PREDICTOR  —  {mode_label}")
         print("=" * 57)
         print(f"\nOdds:  Home {home_odds}  ·  Draw {draw_odds}  ·  Away {away_odds}")
         print(f"Bookmaker overround: {overround:.1f}%")
@@ -157,6 +166,9 @@ def analyse(
         print(f"  Home win : {ph*100:5.1f}%  (target {p_home*100:.1f}%)")
         print(f"  Draw     : {pd*100:5.1f}%  (target {p_draw*100:.1f}%)")
         print(f"  Away win : {pa*100:5.1f}%  (target {p_away*100:.1f}%)")
+
+        if knockout:
+            print(f"\n  Note: draw scorelines excluded from guesses.")
 
         header  = f"  {'Score':<9} {'Prob':>7}  {'E[pts]':>7}  Outcome"
         divider = f"  {'-'*43}"
@@ -190,45 +202,42 @@ def analyse(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Predict WC scorelines from decimal betting odds, optimized for Kicktipp."
+        description="Predict WC scorelines from decimal betting odds, optimized for Kicktipp.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Group stage:    %(prog)s --home 1.40 --draw 4.60 --away 8.25\n"
+            "Knockout round: %(prog)s --knockout --home 1.55 --draw 4.20 --away 2.60"
+        ),
     )
 
-    parser.add_argument(
-        "--home",
-        type=float,
-        required=True,
-        help="home win odds"
-    )
+    parser.add_argument("--knockout", action="store_true",
+        help="knockout mode: use after-90-min 1X2 odds; draw scorelines excluded from guesses")
 
-    parser.add_argument(
-        "--draw",
-        type=float,
-        required=True,
-        help="draw odds"
-    )
+    parser.add_argument("--home", type=float, required=True,
+        help="home win odds")
 
-    parser.add_argument(
-        "--away",
-        type=float,
-        required=True,
-        help="away win odds"
-    )
+    parser.add_argument("--draw", type=float, required=True,
+        help="draw odds (after 90 min for knockout)")
 
-    parser.add_argument(
-        "--top",
-        type=int,
-        default=10,
-        help="number of top scorelines to show"
-    )
+    parser.add_argument("--away", type=float, required=True,
+        help="away win odds")
 
-    parser.add_argument(
-        "-v", "--verbose",
-        action='store_true',
-        help="print verbose output"
-    )
+    parser.add_argument("--top", type=int, default=10,
+        help="number of top scorelines to show (default: 10)")
+
+    parser.add_argument("-v", "--verbose", action="store_true",
+        help="print verbose output")
+
     args = parser.parse_args()
 
-    analyse(args.home, args.draw, args.away, args.top, args.verbose)
+    analyse(
+        home_odds=args.home,
+        draw_odds=args.draw,
+        away_odds=args.away,
+        knockout=args.knockout,
+        top_n=args.top,
+        verbose=args.verbose,
+    )
 
 if __name__ == "__main__":
     main()
