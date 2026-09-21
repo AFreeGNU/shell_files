@@ -20,7 +20,7 @@ Kicktipp "Turnier" scoring (neutral ground, so home/away symmetric):
 Fitting:
   Both lambda_home and lambda_away are fitted simultaneously to match
   the implied P(home win) and P(draw) from the odds — no avg_goals
-  assumption needed. Dixon-Coles correction (rho=-0.13) is applied to
+  assumption needed. Dixon-Coles correction (rho=-0.08) is applied to
   fix Poisson's known draw underestimation.
 
 Knockout mode (--knockout):
@@ -42,7 +42,7 @@ from scipy.stats import skellam
 def poisson_pmf(k: int, lam: float) -> float:
     return (lam**k * exp(-lam)) / factorial(k)
 
-def dixon_coles_correction(h: int, a: int, lam_h: float, lam_a: float, rho: float = -0.13) -> float:
+def dixon_coles_correction(h: int, a: int, lam_h: float, lam_a: float, rho: float = -0.08) -> float:
     """Correction for low-scoring results to fix Poisson's draw underestimation."""
     if h == 0 and a == 0: return 1 - lam_h * lam_a * rho
     if h == 1 and a == 0: return 1 + lam_a * rho
